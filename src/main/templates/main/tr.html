@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Баскетбольные турниры в городе</title>
+    <style>
+        /* Общие стили */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+        
+        /* Стили для фильтров */
+        .filters {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #1a3275;
+        }
+        
+        /* Стили для списка турниров */
+        .tournaments {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .tournament-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .tournament-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .tournament-image {
+            height: 180px;
+            background-color: #e2e8f0;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .tournament-info {
+            padding: 20px;
+        }
+        
+        .tournament-title {
+            font-size: 1.3rem;
+            margin: 0 0 10px;
+            color: #1e3a8a;
+        }
+        
+        .tournament-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .tournament-description {
+            margin-bottom: 15px;
+            color: #475569;
+        }
+        
+        .tournament-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #1e3a8a;
+        }
+        
+        /* Стили для мобильных устройств */
+        @media (max-width: 768px) {
+            .tournaments {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Баскетбольные турниры</h1>
+        </div>
+    </header>
+    
+    <main class="container">
+        <!-- Фильтры -->
+        
+        <!-- Список турниров -->
+        <section class="tournaments">
+            {% for tour in tr %}
+            <!-- Турнир 1 -->
+            <article class="tournament-card">
+                <div class="tournament-image" style="background-image: url('https://via.placeholder.com/400x200?text=Street+Basketball');"></div>
+                <div class="tournament-info">
+                    <h3 class="tournament-title">{{tour.name}}</h3>
+                    <p class="tournament-description">
+                        {{tour.description}}
+                    </p>
+                    <p class="tournament-description">
+                        {{tour.type}}
+                    </p>
+                    {% if not request.user.is_staff and not request.user.is_admin and not tour.is_going_now and request.user.is_authenticated %}
+                        <div class="tournament-actions">
+                            <a href="{% url 'main:register_team' tour.id %}" class="btn btn-secondary">Зарегистрироваться</a>
+                        </div>
+                    {% endif %}
+                    <div class="tournament-actions">
+                        <a style="margin-top: 15px;" href="{% url 'main:filter_teams_basketball' tour.id %}" class="btn btn-secondary">Посмотреть сетку</a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+            
+        </section>
+    </main>
+</body>
+</html>

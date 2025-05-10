@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация тренера</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #83cad4 0%, #2a7a8a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .form {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            color: #2a7a8a;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="password"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background-color: #f9f9f9;
+            margin: 8px 0;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #2a7a8a;
+            box-shadow: 0 0 0 3px rgba(42, 122, 138, 0.2);
+            outline: none;
+            background-color: #fff;
+        }
+        
+        input[type="file"] {
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-color: #b3e0ff;
+        }
+        
+        button {
+            background: linear-gradient(to right, #2a7a8a, #83cad4);
+            color: white;
+            padding: 14px;
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(42, 122, 138, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(42, 122, 138, 0.4);
+            background: linear-gradient(to right, #83cad4, #2a7a8a);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        h5 {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: -5px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        h3 {
+            color: white;
+            margin-top: 25px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        a {
+            display: block;
+            text-align: center;
+            color: #d1faff;
+            margin-top: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        /* Стили для файлового инпута */
+        input[type="file"]::-webkit-file-upload-button {
+            background: #2a7a8a;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background 0.3s;
+        }
+        
+        input[type="file"]::-webkit-file-upload-button:hover {
+            background: #1e5f6b;
+        }
+    </style>
+</head>
+<body>
+    <form class="form" action="{% url 'user:registration' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h1>Регистрация тренера</h1>
+        
+        <div class="form-group">
+            <label for="fio">Ваше ФИО:</label>
+            <input type="text" id="fio" name="fio" placeholder="Иванов Иван Иванович" required>
+            {% if form.fio.errors %}
+                <h5>{{form.fio.errors}}</h5>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Логин:</label>
+            <input type="text" id="username" name="username" placeholder="Придумайте логин">
+            {% if form.username.errors %}
+                <h5>{{form.username.errors}}</h5>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="password1">Пароль:</label>
+            <input type="password" id="password1" name="password1" placeholder="Придумайте пароль">
+            {% if form.password1.errors %}
+                <h5>{{form.password1.errors}}</h5>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="password2">Повторите пароль:</label>
+            <input type="password" id="password2" name="password2" placeholder="Повторите пароль">
+            {% if form.password2.errors %}
+                <h5>{{form.password2.errors}}</h5>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="image">Аватар:</label>
+            <input type="file" id="image" name="image">
+        </div>
+        {% if form.image.errors %}
+        <h5>{{form.image.errors}}</h5>
+        {% endif %}
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+    
+    <h3>Уже есть аккаунт?</h3>
+    <a href="{% url 'user:login' %}">Войти</a>
+</body>
+</html>

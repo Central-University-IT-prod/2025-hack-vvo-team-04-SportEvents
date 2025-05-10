@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой профиль</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .profile-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .profile-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 0 auto 20px;
+            display: block;
+            background-color: #f0f2f5;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background-color: #f9f9f9;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            outline: none;
+            background-color: #fff;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+        
+        .avatar-upload {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .avatar-upload-btn {
+            background: #f0f2f5;
+            color: #555;
+            border: 1px dashed #ccc;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            margin-left: 20px;
+        }
+        
+        .avatar-upload-btn:hover {
+            background: #e0e5eb;
+            border-color: #999;
+        }
+        
+        @media (max-width: 480px) {
+            .profile-container {
+                padding: 30px 20px;
+            }
+            
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">
+            {% if request.user.image %}
+                <h2>Картинка есть</h2>
+                <img src="{{ request.user.image.url }}"
+                    alt="Аватар пользователя" class="img-fluid rounded-circle"
+                    style="max-width: 150px;">
+            {% else %}
+                <img src="https://cdn-icons-png.flaticon.com/512/6596/6596121.png" alt="Аватар пользователя" class="img-fluid rounded-circle"
+                    style="max-width: 150px;">
+            {% endif %}
+            <h1>Мой профиль</h1>
+            {% if request.user.is_admin or request.user.is_staff %}
+                <h3>Вы админ</h3>
+            {% endif %}
+            <p>Редактируйте ваши данные</p>
+        </div>
+        
+        <form action="{% url 'user:profile' %}" method="post">
+            {% csrf_token %}
+            <div class="avatar-upload">
+                <label for="avatar">Аватар:</label>
+                <input type="file" id="image" name="image" accept="image/*" class="avatar-upload-btn">
+                {% if form.image.errors %}
+                <h3>{{form.image.errors}}</h3>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Введите имя пользователя" value="{{form.username.value}}">
+                {% if form.username.errors %}
+                <h3>{{form.username.errors}}</h3>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="fio">Ваше ФИО:</label>
+                <input type="text" id="fio" name="fio" class="form-control" placeholder="Введите ФИО" value="{% if request.user.fio %}{{request.user.fio}}{% endif %}">
+                {% if form.fio.errors %}
+                    <h3>{{form.fio.errors}}</h3>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn-submit">Сохранить изменения</button>
+        </form>
+
+        <style>
+            .user-teams {
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: 20px auto;
+                padding: 15px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            
+            .user-teams h2 {
+                margin-top: 0;
+                color: #333;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 10px;
+            }
+            
+            .teams-list {
+                list-style: none;
+                padding: 0;
+            }
+            
+            .team-item {
+                padding: 10px;
+                margin: 5px 0;
+                background: #f9f9f9;
+                border-radius: 4px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .team-item:hover {
+                background: #f0f0f0;
+            }
+            
+            .team-name {
+                font-weight: bold;
+            }
+            
+            .team-members {
+                color: #666;
+                font-size: 0.9em;
+            }
+        </style>
+        <body>
+            <style>
+                .user-teams {
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: 20px auto;
+                    padding: 15px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                }
+                
+                .user-teams h2 {
+                    margin-top: 0;
+                    color: #333;
+                    border-bottom: 1px solid #eee;
+                    padding-bottom: 10px;
+                }
+                
+                .teams-list {
+                    list-style: none;
+                    padding: 0;
+                }
+                
+                .team-item {
+                    padding: 10px;
+                    margin: 5px 0;
+                    background: #f9f9f9;
+                    border-radius: 4px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .team-item:hover {
+                    background: #f0f0f0;
+                }
+                
+                .team-name {
+                    font-weight: bold;
+                }
+                
+                .team-members {
+                    color: #666;
+                    font-size: 0.9em;
+                }
+            </style>
+            <div class="user-teams">
+                <h2>Мои команды</h2>
+                <ul class="teams-list">
+                    {% for team in teams %}
+                        <li class="team-item">
+                            <span class="team-name">{{team.name}}</span>
+                            <span class="team-members">Участников: {{team.num_players}}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </body>
+        </html>
+    </div>
+
+    <script>
+        // Предпросмотр аватара при выборе файла
+        document.getElementById('avatar').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('avatar-preview').src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>

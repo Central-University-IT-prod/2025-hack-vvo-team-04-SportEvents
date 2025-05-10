@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Баскетбольный помощник</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gray-color: #6c757d;
+            --success-color: #4cc9f0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        #questionForm {
+            margin-bottom: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        #questionForm:hover {
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        
+        #userQuestion {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+        }
+        
+        #userQuestion:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            background-color: white;
+        }
+        
+        button {
+            padding: 14px 28px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #response {
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            min-height: 150px;
+            white-space: pre-wrap;
+            line-height: 1.7;
+            font-size: 16px;
+            color: var(--dark-color);
+            border-left: 5px solid var(--primary-color);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        #loading {
+            display: none;
+            color: var(--primary-color);
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(67,97,238,0.1) 0%, rgba(67,97,238,0) 70%);
+            z-index: -1;
+        }
+        
+        .container::after {
+            content: "";
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(247,37,133,0.1) 0%, rgba(247,37,133,0) 70%);
+            z-index: -1;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏀 Баскетбольный помощник</h1>
+        
+        <form id="questionForm" method="POST" action="{% url 'main:question' %}">
+            {% csrf_token %}
+            <input type="text" name="question" id="userQuestion" placeholder="Задайте вопрос о баскетболе..." required>
+            <button type="submit">Получить ответ</button>
+        </form>
+        
+        <div id="loading" class="pulse">⏳ Обрабатываю ваш вопрос...</div>
+        <div id="response">
+            {% if answer %}
+                {% for i in answer %}
+                {{i}}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('questionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const responseDiv = document.getElementById('response');
+            const loading = document.getElementById('loading');
+            const question = document.getElementById('userQuestion').value.trim();
+            
+            if (!question) {
+                alert('Пожалуйста, введите вопрос');
+                return;
+            }
+            
+            loading.style.display = 'block';
+            responseDiv.textContent = '';
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Создаем временный элемент для парсинга HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                let answer = doc.querySelector('#response').textContent;
+                            
+                // Постепенное отображение ответа
+                let i = 0;
+                const speed = 20;
+                responseDiv.textContent = '';
+                
+                function typeWriter() {
+                    if (i < answer.length) {
+                        responseDiv.textContent += answer.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, speed);
+                    } else {
+                        loading.style.display = 'none';
+                    }
+                }
+                
+                typeWriter();
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                responseDiv.textContent = 'Произошла ошибка при обработке запроса';
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

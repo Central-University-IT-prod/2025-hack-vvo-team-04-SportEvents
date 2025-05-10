@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Турнирная сетка на {{len_teams}} команд</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .tournament-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Три столбца: 1/4, 1/2, Финал */
+            grid-gap: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .round {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .match {
+            background-color: #e0e0e0;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .round h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    {% if len_teams == 8 %}
+    <div class="tournament-grid">
+        <div class="round">
+            {% if len0 == 4 %}
+                <h2>Проигравшие 1/4 Финала</h2>
+            {% else %}
+                <h2>1/4 Финала</h2>
+            {% endif %}
+            {% for t0 in team_no %}
+            <div class="match">
+                <h3>{{t0.name}}</h3>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="round">
+            {% if len1 == 2 %}
+                <h2>Проигравшие 1/2 Финала</h2>
+            {% else %}
+                <h2>1/2 Финала</h2>
+            {% endif %}
+            {% for t1 in team1 %}
+            <div class="match">
+                <h3>{{t1.name}}</h3>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="round">
+            {% if len2 == 1 %}
+                <h2>Проигравший финал</h2>
+            {% else %}
+                <h2>Финал</h2>
+            {% endif %}
+            {% for t2 in team2 %}
+                <div class="match">
+                    <h3>{{t2.name}}</h3>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="round">
+            <h2>Победитель</h2>
+            {% for t3 in team3 %}
+            <div class="match" style="background-color: gold;"><br><h3>{{t3.name}}</h3></br></div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% elif len_teams == 4 %}
+    <div class="tournament-grid">
+        <div class="round">
+            {% if len0 == 2 %}
+                <h2>Проигравшие 1/2 Финала</h2>
+            {% else %}
+                <h2>1/4 Финала</h2>
+            {% endif %}
+            {% for t0 in team_no %}
+            <div class="match">
+                <h3>{{t0.name}}</h3>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="round">
+            {% if len2 == 1 %}
+                <h2>Проигравший финал</h2>
+            {% else %}
+                <h2>Финал</h2>
+            {% endif %}
+        </div>
+
+        <div class="round">
+            <h2>Победитель</h2>
+            {% for t2 in team2 %}
+            <div class="match" style="background-color: gold;"><br><h3>{{t2.name}}</h3></br></div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    {% elif len_teams == 2 %}
+    <div class="tournament-grid">
+        <div class="round">
+            {% if len0 == 2 %}
+                <h2>Проигравшие Финал</h2>
+            {% else %}
+                <h2>Финал</h2>
+            {% endif %}
+            {% for t0 in team_no %}
+            <div class="match">
+                <h3>{{t0.name}}</h3>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="round">
+            <h2>Победитель</h2>
+            {% for t1 in team1 %}
+            <div class="match" style="background-color: gold;"><br><h3>{{t1.name}}</h3></br></div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if t > 0 %}
+    <div class="tournament-grid">
+        <h4>Команд нет</h4>
+    </div>
+    {% endif %}
+
+</body>
+</html>

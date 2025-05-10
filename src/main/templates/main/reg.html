@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация команды</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+        .participant-row {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .add-participant-btn {
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Регистрация команды на турнир "{{tour.name}}"</h2>
+            <form id="teamRegistrationForm" action="{% url 'main:register_team' tour.id %}" method="post">
+                {% csrf_token %}
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <label for="captainFirstName" class="form-label required-field">ФИО тренера (поменяйте в профиле)</label>
+                        <input type="text" class="form-control" id="captainFirstName" name="fio-coach" value="{{request.user.fio}}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="teamName" class="form-label required-field">Название команды</label>
+                    <input type="text" class="form-control" id="name", name="name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ageCategory" class="form-label required-field">Возрастная категория</label>
+                    <input type="text" class="form-control" id="category", name="category" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required-field">Количество участников (минимум 5)</label>
+                    <div class="input-group">
+                        <button class="btn btn-outline-secondary" type="button" id="decrementParticipants">-</button>
+                        <input type="number" class="form-control text-center" name="num_players" id="participantsCount" value="5" min="5" max="20" readonly>
+                        <button class="btn btn-outline-secondary" type="button" id="incrementParticipants">+</button>
+                    </div>
+                    <div class="mistake">
+                        <p style="color: red;" id="mistakeAlertt"></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="ageCategory" class="form-label required-field">Участники команды</label>
+                    <input type="text" class="form-control" id="players", name="players" required>
+                </div>
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button onclick="check()" type="submit" id="button" class="btn btn-primary btn-lg">Зарегистрировать команду</button>
+                </div>
+                <!-- <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const participantsInput = document.getElementById('participantsCount');
+                        const submitBtn = document.getElementById('button');
+
+                        submitBtn.addEventListener('click', (e) => {
+                            if (parseInt(participantsInput.value) < 5) {
+                                e.preventDefault();
+                                submitBtn.disabled = true;
+                                document.getElementById('mistakeAlertt').innerHTML = "Должно быть минимум 5 учатсников"
+                            } else {
+                                e.preventDefault();
+                                submitBtn.disabled = false;
+                            }
+                        });
+
+                        participantsInput.addEventListener('input', () => {
+                            submitBtn.disabled = parseInt(participantsInput.value) < 5;
+                        });
+                    });
+
+                </script> -->
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYear = new Date().getFullYear();
+            const birthYearSelects = document.querySelectorAll('.participant-birth-year');
+            
+            birthYearSelects.forEach(select => {
+                for (let year = currentYear - 14; year >= currentYear - 50; year--) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    select.appendChild(option);
+                }
+            });
+
+            // Управление количеством участников
+            const participantsCount = document.getElementById('participantsCount');
+            const decrementBtn = document.getElementById('decrementParticipants');
+            const incrementBtn = document.getElementById('incrementParticipants');
+            const participantsContainer = document.getElementById('participantsContainer');
+
+            decrementBtn.addEventListener('click', function() {
+                if (parseInt(participantsCount.value) > 1) {
+                    participantsCount.value = parseInt(participantsCount.value) - 1;
+                    updateParticipantsFields();
+                }
+            });
+
+            incrementBtn.addEventListener('click', function() {
+                if (parseInt(participantsCount.value) < 20) {
+                    participantsCount.value = parseInt(participantsCount.value) + 1;
+                    updateParticipantsFields();
+                }
+            });
+
+            // Обновление полей участников
+            function updateParticipantsFields() {
+                const currentCount = document.querySelectorAll('.participant-row').length;
+                const newCount = parseInt(participantsCount.value);
+
+                if (newCount > currentCount) {
+                    // Добавляем новые поля
+                    for (let i = currentCount + 1; i <= newCount; i++) {
+                        const participantRow = document.createElement('div');
+                        participantRow.className = 'participant-row';
+                        participantRow.innerHTML = `
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="participant${i}FirstName" class="form-label required-field">Имя участника</label>
+                                    <input type="text" class="form-control participant-first-name" id="participant${i}FirstName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="participant${i}LastName" class="form-label required-field">Фамилия участника</label>
+                                    <input type="text" class="form-control participant-last-name" id="participant${i}LastName" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="participant${i}BirthYear" class="form-label required-field">Год рождения</label>
+                                <select class="form-select participant-birth-year" id="participant${i}BirthYear" required>
+                                    <option value="" selected disabled>Выберите год</option>
+                                </select>
+                            </div>
+                        `;
+                        participantsContainer.appendChild(participantRow);
+
+                        // Заполняем года для нового select
+                        const newSelect = participantRow.querySelector('.participant-birth-year');
+                        for (let year = currentYear - 14; year >= currentYear - 50; year--) {
+                            const option = document.createElement('option');
+                            option.value = year;
+                            option.textContent = year;
+                            newSelect.appendChild(option);
+                        }
+                    }
+                } else if (newCount < currentCount) {
+                    // Удаляем лишние поля
+                    const rows = document.querySelectorAll('.participant-row');
+                    for (let i = newCount; i < currentCount; i++) {
+                        participantsContainer.removeChild(rows[i]);
+                    }
+                }
+            }
+
+            // Проверка возраста при выборе категории
+            document.getElementById('ageCategory').addEventListener('change', function() {
+                const category = this.value;
+                const minYear = category === '14+' ? currentYear - 16 : 
+                                 category === '16+' ? currentYear - 18 : 
+                                 currentYear - 100;
+                const maxYear = category === '14+' ? currentYear - 14 :
+                                 category === '16+' ? currentYear - 16 :
+                                 currentYear - 18;
+
+                document.querySelectorAll('.participant-birth-year').forEach(select => {
+                    Array.from(select.options).forEach(option => {
+                        if (option.value && option.value !== '') {
+                            const year = parseInt(option.value);
+                            option.disabled = year < minYear || year > maxYear;
+                            if (option.disabled && option.selected) {
+                                select.value = '';
+                            }
+                        }
+                    });
+                });
+            });
+
+            // Обработка отправки формы
+            document.getElementById('teamRegistrationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Здесь можно добавить обработку данных формы
+                alert('Форма успешно отправлена!');
+            });
+        });
+    </script>
+</body>
+</html>
